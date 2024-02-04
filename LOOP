@@ -1,0 +1,40 @@
+            loop = asyncio.get_event_loop()
+            try:
+                if loop.is_running():
+                    task = loop.create_task(async_INIT_Process(odoo_major,cliente_etiqueta,version_odoo,puerto_odoo,puerto_bd))
+                    await task
+                    print(f"*****TASK FIN CRET*****")
+                else:
+                    new_loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(new_loop)
+                    task = new_loop.create_task(async_INIT_Process(odoo_major,cliente_etiqueta,version_odoo,puerto_odoo,puerto_bd))
+                    await task
+                    print(f"*****TASK FIN NEW*****")
+
+
+            except Exception as e:
+                print(f"Error en la tarea asíncrona: {e}")       
+                    
+           
+            print(f"*****FIN*****")
+            ui.open('/logs_cmd')
+
+
+
+
+
+
+def run_commandX(command):
+    process = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    return process.stdout, process.stderr
+                
+async def async_INIT_Process(odoo_major,cliente_etiqueta,version_odoo,puerto_odoo,puerto_bd):
+    try:
+        comandoUp = f"bash iniciarDocker.sh -o {odoo_major} -c {cliente_etiqueta} -v {version_odoo} -p {puerto_odoo} -b {puerto_bd} > logs.log 2>&1"
+        stdout, stderr = await asyncio.to_thread(run_commandX, comandoUp)
+    except Exception as e:
+        print(f"Error en async_turn_docker: {str(e)}")
+
+
+
+
